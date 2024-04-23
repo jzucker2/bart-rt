@@ -5,7 +5,7 @@
   "_template": "gh:oncleben31/cookiecutter-homeassistant-custom-component",
   "class_name_prefix": "BartRt",
   "domain_name": "bart_rt",
-  "friendly_name": "Awesome custom component",
+  "friendly_name": "Bart RT",
   "github_user": "jzucker2",
   "project_name": "bart-rt",
   "test_suite": "yes",

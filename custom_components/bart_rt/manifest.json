@@ -1,10 +1,13 @@
 {
   "domain": "bart_rt",
-  "name": "Awesome custom component",
+  "name": "Bart RT",
   "documentation": "https://github.com/jzucker2/bart-rt",
+  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/jzucker2/bart-rt/issues",
   "dependencies": [],
-  "config_flow": true,
-  "codeowners": ["@jzucker2"],
+  "config_flow": false,
+  "codeowners": [
+    "@jzucker2"
+  ],
   "requirements": []
 }

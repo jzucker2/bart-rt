@@ -16,11 +16,9 @@ HEADERS = {"Content-type": "application/json; charset=UTF-8"}
 
 class BartRtApiClient:
     def __init__(
-        self, username: str, password: str, session: aiohttp.ClientSession
+        self, session: aiohttp.ClientSession
     ) -> None:
         """Sample API Client."""
-        self._username = username
-        self._passeword = password
         self._session = session
 
     async def async_get_data(self) -> dict:
@@ -28,10 +26,10 @@ class BartRtApiClient:
         url = "https://jsonplaceholder.typicode.com/posts/1"
         return await self.api_wrapper("get", url)
 
-    async def async_set_title(self, value: str) -> None:
+    async def async_get_etd(self) -> dict:
         """Get data from the API."""
-        url = "https://jsonplaceholder.typicode.com/posts/1"
-        await self.api_wrapper("patch", url, data={"title": value}, headers=HEADERS)
+        url = "https://api.bart.gov/api/etd.aspx?cmd=etd&orig=16TH&key=MW9S-E7SL-26DU-VV8V&json=y"
+        return await self.api_wrapper("get", url)
 
     async def api_wrapper(
         self, method: str, url: str, data: dict = {}, headers: dict = {}
