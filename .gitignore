@@ -1,3 +1,5 @@
+.tool-versions
+.gitignore
 __pycache__
 pythonenv*
 .python-version

@@ -1,6 +1,5 @@
 {
   "name": "Bart RT",
   "hacs": "1.34.0",
-  "iot_class": "local_polling",
   "homeassistant": "2023.10.1"
 }
