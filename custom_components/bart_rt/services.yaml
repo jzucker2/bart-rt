@@ -1,0 +1,62 @@
+reload:
+  description: Reload all jz multi zone controller entities.
+
+next_zone:
+  name: Change zone
+  description: Cycle through available media_player zones.
+  target:
+
+turn_on:
+  name: Turn on zone
+  description: Turn a zone on
+  target:
+
+turn_off:
+  name: Turn off zone
+  description: Turn a zone off
+  target:
+
+volume_up:
+  name: Turn up volume
+  description: Turn a zone volume up.
+  target:
+
+volume_down:
+  name: Turn down volume
+  description: Turn a zone volume down.
+  target:
+
+toggle_volume_mute:
+  name: Toggle mute volume
+  description: Toggle to mute/unmute a zone's volume.
+  target:
+
+volume_mute:
+  name: Mute volume
+  description: Mute a zone's volume.
+  target:
+  fields:
+    is_volume_muted:
+      name: Muted
+      description: True/false for mute/unmute.
+      required: true
+      example: true
+      selector:
+        boolean:
+
+volume_set:
+  name: Set volume
+  description: Set a zone's volume level.
+  target:
+  fields:
+    volume_level:
+      name: Level
+      description: Volume level to set as float.
+      required: true
+      example: 0.6
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.01
+          mode: slider
