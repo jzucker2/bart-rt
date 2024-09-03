@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.httpx_client import create_async_httpx_client
 from homeassistant.helpers.json import json_dumps
 
-from .const import XML_MIME_TYPES, DEFAULT_ENCODING
+from .const import XML_MIME_TYPES, DEFAULT_ENCODING, DEFAULT_BART_API_BASE_URL
 
 DEFAULT_TIMEOUT = 10
 
@@ -30,6 +30,7 @@ class BartAPIClient:
         self._station = station
         self._timeout = timeout
         self._verify_ssl = False
+        self._base_url = DEFAULT_BART_API_BASE_URL
         self._method = "GET"
         self._encoding = DEFAULT_ENCODING
         self._async_client: httpx.AsyncClient | None = None
@@ -52,11 +53,7 @@ class BartAPIClient:
 
     @property
     def base_url(self):
-        return 'test'
-
-    def set_payload(self, payload: str) -> None:
-        """Set request data."""
-        self._request_data = payload
+        return self._base_url
 
     def data_without_xml(self) -> str | None:
         """If the data is an XML string, convert it to a JSON string."""
