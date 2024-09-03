@@ -3,5 +3,6 @@
   "hacs": "2.0.0",
   "domains": ["text"],
   "iot_class": "Cloud Polling",
+  "render_readme": true,
   "homeassistant": "0.118.0"
 }
