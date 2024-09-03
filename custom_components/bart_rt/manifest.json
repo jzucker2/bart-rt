@@ -1,9 +1,10 @@
 {
     "domain": "bart_rt",
-    "name": "BART RT",
+    "name": "BART Rt",
     "documentation": "https://github.com/jzucker2/bart-rt",
     "issue_tracker": "https://github.com/jzucker2/bart-rt/issues",
     "codeowners": ["@jzucker2"],
     "iot_class": "cloud_polling",
-    "version": "0.1"
+    "version": "0.1",
+    "requirements": ["xmltodict==0.13.0"]
   }

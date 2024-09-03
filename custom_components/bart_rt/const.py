@@ -1,0 +1,8 @@
+XML_MIME_TYPES = (
+    "application/rss+xml",
+    "application/xhtml+xml",
+    "application/xml",
+    "text/xml",
+)
+
+DEFAULT_ENCODING = "UTF-8"
