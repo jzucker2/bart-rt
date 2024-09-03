@@ -1,4 +1,5 @@
-"""The jz_multi_zone_controller component."""
+"""The bart zone text sensor component."""
 
 DOMAIN = "bart_rt"
-PLATFORMS = ["sensor"]
+# PLATFORMS = ["sensor", "text"]
+PLATFORMS = ["text"]

@@ -2,17 +2,11 @@
 from __future__ import annotations
 from typing import List
 
-from homeassistant.helpers.entity_component import EntityComponent
 import logging
 
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
-from homeassistant.components.media_player import (
-    _rename_keys,
-    ATTR_MEDIA_VOLUME_LEVEL,
-    ATTR_MEDIA_VOLUME_MUTED,
-)
+from homeassistant.components.text import PLATFORM_SCHEMA, TextEntity
 from homeassistant.components.media_player import DOMAIN as MEDIA_PLAYER_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
@@ -20,12 +14,6 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_UNIQUE_ID,
     CONF_SOURCE,
-    SERVICE_TURN_ON,
-    SERVICE_TURN_OFF,
-    SERVICE_VOLUME_UP,
-    SERVICE_VOLUME_SET,
-    SERVICE_VOLUME_DOWN,
-    SERVICE_VOLUME_MUTE,
     STATE_OFF,
     STATE_ON,
     STATE_PLAYING,
@@ -50,7 +38,7 @@ CONF_VOLUME_MAX = "volume_max"
 CONF_VOLUME_MIN = "volume_min"
 CONF_COMBINED = "combined"
 
-DEFAULT_NAME = "JZ Multi Zone Media Player"
+DEFAULT_NAME = "Bart Zone Media Player"
 DEFAULT_COMBINED_NAME = "All Zones"
 DEFAULT_COMBINED_ICON = "mdi:speaker-multiple"
 DEFAULT_ZONE_NAME = "Zone"
@@ -90,7 +78,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the multizone sensor."""
+    """Set up the bart zone sensor."""
 
     unique_id = config.get(CONF_UNIQUE_ID)
     name = config[CONF_NAME]
@@ -124,7 +112,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     async_add_entities(
         [
-            JZMultiZoneSensor(
+            BartZoneSensor(
                 unique_id,
                 name,
                 zones,
@@ -137,61 +125,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         ]
     )
 
-    platform = entity_platform.async_get_current_platform()
-    platform.async_register_entity_service(
-        SERVICE_NEXT_ZONE,
-        {},
-        "async_next_zone",
-    )
-    platform.async_register_entity_service(
-        SERVICE_VOLUME_UP,
-        {},
-        "async_volume_up",
-    )
-    platform.async_register_entity_service(
-        SERVICE_VOLUME_DOWN,
-        {},
-        "async_volume_down",
-    )
-    platform.async_register_entity_service(
-        SERVICE_TURN_ON,
-        {},
-        "async_turn_on",
-    )
-    platform.async_register_entity_service(
-        SERVICE_TURN_OFF,
-        {},
-        "async_turn_off",
-    )
-    platform.async_register_entity_service(
-        SERVICE_VOLUME_TOGGLE_MUTE,
-        {},
-        "async_toggle_mute_volume",
-    )
-    platform.async_register_entity_service(
-        SERVICE_VOLUME_SET,
-        vol.All(
-            cv.make_entity_service_schema(
-                {vol.Required(ATTR_MEDIA_VOLUME_LEVEL): cv.small_float}
-            ),
-            _rename_keys(volume=ATTR_MEDIA_VOLUME_LEVEL),
-        ),
-        "async_set_volume_level",
-    )
-    platform.async_register_entity_service(
-        SERVICE_VOLUME_MUTE,
-        vol.All(
-            cv.make_entity_service_schema(
-                {vol.Required(ATTR_MEDIA_VOLUME_MUTED): cv.boolean}
-            ),
-            _rename_keys(mute=ATTR_MEDIA_VOLUME_MUTED),
-        ),
-        "async_mute_volume",
-    )
+    # seems unnecessary if I don't register any services
+    # platform = entity_platform.async_get_current_platform()
 
 
-class JZMultiZoneSensor(SensorEntity):
-    """Representation of a multizone sensor."""
+class BartZoneSensor(TextEntity):
+    """Representation of a bart zone sensor."""
 
     def __init__(
         self,
@@ -225,7 +164,7 @@ class JZMultiZoneSensor(SensorEntity):
 
         self.async_on_remove(
             async_track_state_change_event(
-                self.hass, entity_ids, self._async_multizone_sensor_state_listener
+                self.hass, entity_ids, self._async_bart_zone_sensor_state_listener
             )
         )
 
@@ -271,223 +210,8 @@ class JZMultiZoneSensor(SensorEntity):
         """Return the icon to use in the frontend, if any."""
         return self._icon
 
-    def next_zone(self):
-        """Set the next zone."""
-        zones = [z for z in self._zones.values() if z.available]
-        nxt = None
-        if len(zones) <= 1:
-            return
-        elif self._current == self._all_zones:
-            nxt = zones[0]
-        else:
-            if self._current == zones[-1] and len(self._zones) == len(zones):
-                nxt = self._all_zones
-            else:
-                nxt = self._get_next_zone(self._current)
-
-        nxt.set_active(True)
-        if nxt == self._all_zones:
-            self._set_current_zone(nxt)
-            for zone in zones:
-                zone.set_active(True)
-        else:
-            self._all_zones.set_active(False)
-            self._activate_single_zone(nxt)
-
-        self.schedule_update_ha_state()
-
-    async def async_next_zone(self):
-        """Mute the volume."""
-        await self.hass.async_add_executor_job(self.next_zone)
-
-    def mute_volume(self, mute):
-        """Mute the volume."""
-        self.hass.services.call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_MUTE,
-            {ATTR_MEDIA_VOLUME_MUTED: mute},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    async def async_mute_volume(self, mute):
-        """Mute the volume."""
-        await self.hass.services.async_call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_MUTE,
-            {ATTR_MEDIA_VOLUME_MUTED: mute},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    def _toggle_mute_volume(self, entities) -> bool:
-        return any(
-            [
-                self.hass.states.get(entity_id).attributes[ATTR_MEDIA_VOLUME_MUTED]
-                for entity_id in entities
-            ]
-        )
-
-    def toggle_mute_volume(self):
-        """Toggle mute the volume."""
-        entities = self._get_active_zones()
-        self.hass.services.call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_MUTE,
-            {ATTR_MEDIA_VOLUME_MUTED: not self._toggle_mute_volume(entities)},
-            blocking=True,
-            target={ATTR_ENTITY_ID: entities},
-            context=self._context
-        )
-
-    async def async_toggle_mute_volume(self):
-        """Mute the volume."""
-        entities = self._get_active_zones()
-        await self.hass.services.async_call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_MUTE,
-            {ATTR_MEDIA_VOLUME_MUTED: not self._toggle_mute_volume(entities)},
-            blocking=True,
-            target={ATTR_ENTITY_ID: entities},
-            context=self._context
-        )
-
-    def set_volume_level(self, volume):
-        """Set volume level, range 0..1."""
-        self.hass.services.call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_SET,
-            {ATTR_MEDIA_VOLUME_LEVEL: volume},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    async def async_set_volume_level(self, volume):
-        """Set volume level, range 0..1."""
-        await self.hass.services.async_call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_VOLUME_SET,
-            {ATTR_MEDIA_VOLUME_LEVEL: volume},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    def _next_volume_up(self) -> float | None:
-        volume_level = self._get_combined_volume_level()
-        if volume_level is not None and volume_level < 1:
-            return min(self._volume_max, round(volume_level + self._volume_inc, 2))
-        return None
-
-    def volume_up(self):
-        """Turn volume up for media player."""
-        volume = self._next_volume_up()
-        if volume is not None:
-            self.hass.services.call(
-                MEDIA_PLAYER_DOMAIN,
-                SERVICE_VOLUME_SET,
-                {ATTR_MEDIA_VOLUME_LEVEL: volume},
-                blocking=True,
-                target={ATTR_ENTITY_ID: self._get_active_zones()},
-                context=self._context
-            )
-
-    async def async_volume_up(self):
-        """Turn volume up for media player."""
-        volume = self._next_volume_up()
-        if volume is not None:
-            await self.hass.services.async_call(
-                MEDIA_PLAYER_DOMAIN,
-                SERVICE_VOLUME_SET,
-                {ATTR_MEDIA_VOLUME_LEVEL: volume},
-                blocking=True,
-                target={ATTR_ENTITY_ID: self._get_active_zones()},
-                context=self._context
-            )
-
-    def _next_volume_down(self) -> float | None:
-        volume_level = self._get_combined_volume_level()
-        if volume_level is not None and volume_level > 0:
-            return max(self._volume_min, round(volume_level - self._volume_inc, 2))
-        return None
-
-    def volume_down(self):
-        """Turn volume down for media player."""
-        volume = self._next_volume_down()
-        if volume is not None:
-            self.hass.services.call(
-                MEDIA_PLAYER_DOMAIN,
-                SERVICE_VOLUME_SET,
-                {ATTR_MEDIA_VOLUME_LEVEL: volume},
-                blocking=True,
-                target={ATTR_ENTITY_ID: self._get_active_zones()},
-                context=self._context
-            )
-
-    async def async_volume_down(self):
-        """Turn volume down for media player."""
-        volume = self._next_volume_down()
-        if volume is not None:
-            await self.hass.services.async_call(
-                MEDIA_PLAYER_DOMAIN,
-                SERVICE_VOLUME_SET,
-                {ATTR_MEDIA_VOLUME_LEVEL: volume},
-                blocking=True,
-                target={ATTR_ENTITY_ID: self._get_active_zones()},
-                context=self._context
-            )
-
-    # I added this
-
-    def turn_on(self, mute):
-        """Turn on the active zones."""
-        self.hass.services.call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_TURN_ON,
-            {},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    async def async_turn_on(self):
-        """Turn on the active zones."""
-        await self.hass.services.async_call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_TURN_ON,
-            {},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    def turn_off(self, mute):
-        """Turn on the active zones."""
-        self.hass.services.call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_TURN_OFF,
-            {},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
-    async def async_turn_off(self):
-        """Turn on the active zones."""
-        await self.hass.services.async_call(
-            MEDIA_PLAYER_DOMAIN,
-            SERVICE_TURN_OFF,
-            {},
-            blocking=True,
-            target={ATTR_ENTITY_ID: self._get_active_zones()},
-            context=self._context
-        )
-
     @callback
-    def _async_multizone_sensor_state_listener(self, event):
+    def _async_bart_zone_sensor_state_listener(self, event):
         """Handle media_player state changes."""
         new_state = event.data.get("new_state")
         entity = event.data.get("entity_id")
@@ -575,30 +299,6 @@ class JZMultiZoneSensor(SensorEntity):
         else:
             self._state = zone.name
             self._icon = zone.icon
-
-    def _get_combined_volume_level(self) -> float:
-        """Get the combined volume level of the media_players, if any."""
-        levels = []
-        for entity_id in self._get_active_zones():
-            state = self.hass.states.get(entity_id)
-            levels.append(state.attributes[ATTR_MEDIA_VOLUME_LEVEL])
-
-        level = None
-        if len(levels) > 0:
-            divisor = 100
-            level = int(round(sum(levels) / len(levels), 2) * divisor)
-            if self._snap:
-                level = level - level % int(self._volume_inc * divisor)
-            level /= divisor
-        return level
-
-    def _get_active_zones(self) -> List[str]:
-        """Return the current active zones."""
-        return [e for e, z in self._zones.items() if z.active]
-
-    def _get_available_zones(self) -> List[str]:
-        """Return the current available zones."""
-        return [e for e, z in self._zones.items() if z.available]
 
 
 class Zone(object):
