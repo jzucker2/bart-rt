@@ -1,10 +1,10 @@
 {
-  "domain": "bart_rt",
-  "name": "Awesome custom component",
-  "documentation": "https://github.com/jzucker2/bart-rt",
-  "issue_tracker": "https://github.com/jzucker2/bart-rt/issues",
-  "dependencies": [],
-  "config_flow": true,
-  "codeowners": ["@jzucker2"],
-  "requirements": []
-}
+    "domain": "bart_rt",
+    "name": "BART Rt",
+    "documentation": "https://github.com/jzucker2/bart-rt",
+    "issue_tracker": "https://github.com/jzucker2/bart-rt/issues",
+    "codeowners": ["@jzucker2"],
+    "iot_class": "cloud_polling",
+    "version": "0.1",
+    "requirements": ["xmltodict==0.13.0"]
+  }
