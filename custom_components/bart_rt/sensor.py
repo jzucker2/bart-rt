@@ -25,6 +25,8 @@ from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.reload import async_setup_reload_service
 
 from . import DOMAIN, PLATFORMS
+from .const import DEFAULT_BART_STATION
+from .bart_api import BartAPIClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -108,6 +110,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         config[CONF_COMBINED][CONF_ICON],
     )
 
+    bart_api_client = BartAPIClient.get_client(hass, DEFAULT_BART_STATION)
+
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
 
     async_add_entities(
@@ -115,6 +119,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             BartZoneSensor(
                 unique_id,
                 name,
+                bart_api_client,
                 zones,
                 all_zones,
                 volume_min,
@@ -136,6 +141,7 @@ class BartZoneSensor(TextEntity):
         self,
         unique_id: str,
         name: str,
+        bart_client,
         zones: dict[str, Zone],
         all_zones: AllZones,
         volume_min: int,
@@ -145,6 +151,7 @@ class BartZoneSensor(TextEntity):
     ):
         self._unique_id = unique_id
         self._name = name
+        self._bart_client = bart_client
         self._zones = zones
         self._all_zones = all_zones
         self._volume_min = volume_min

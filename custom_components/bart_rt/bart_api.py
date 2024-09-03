@@ -21,17 +21,15 @@ class BartAPIClient:
     def __init__(
         self,
         hass: HomeAssistant,
-        auth: httpx.DigestAuth | tuple[str, str] | None,
         station: str | None,
-        verify_ssl: bool,
         timeout: int = DEFAULT_TIMEOUT,
     ) -> None:
         """Initialize the data object."""
         self._hass = hass
-        self._auth = auth
+        self._auth = None
         self._station = station
         self._timeout = timeout
-        self._verify_ssl = verify_ssl
+        self._verify_ssl = False
         self._method = "GET"
         self._encoding = DEFAULT_ENCODING
         self._async_client: httpx.AsyncClient | None = None
@@ -39,9 +37,14 @@ class BartAPIClient:
         self.last_exception: Exception | None = None
         self.headers: httpx.Headers | None = None
 
-    # @classmethod
-    # def get_client(cls):
-    #     return cls()
+    @classmethod
+    def get_client(
+            cls,
+            hass: HomeAssistant,
+            station: str | None,
+            timeout: int = DEFAULT_TIMEOUT,
+    ) -> BartAPIClient:
+        return cls(hass, station, timeout=timeout)
 
     @property
     def station(self):
