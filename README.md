@@ -6,3 +6,4 @@ Greatly inspired by https://github.com/Petro31/ha-integration-multizone-controll
 
 * https://developers.home-assistant.io/docs/dev_101_services/
 * https://developers.home-assistant.io/docs/integration_fetching_data/
+* https://aarongodfrey.dev/home%20automation/use-coordinatorentity-with-the-dataupdatecoordinator/
