@@ -39,7 +39,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_platform(
+        hass,
+        config,
+        async_add_entities,
+        discovery_info=None
+):
     """Set up the bart train line sensor."""
 
     bart_api_client = BartAPIClient.get_client(hass, DEFAULT_BART_STATION)
@@ -83,6 +88,7 @@ class BartTrainSensor(CoordinatorEntity, TextEntity):
         name: str,
     ):
         super().__init__(coordinator)
+        self.attrs = {}
         self._name = name
 
         self._icon = DEFAULT_ICON.format(0)

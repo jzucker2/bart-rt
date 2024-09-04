@@ -13,3 +13,4 @@ Greatly inspired by https://github.com/Petro31/ha-integration-multizone-controll
 * https://www.bart.gov/schedules/developers/api
 * https://api.bart.gov/docs/etd/etd.aspx
 * https://api.bart.gov/api/etd.aspx?cmd=etd&orig=16TH&key=MW9S-E7SL-26DU-VV8V
+* https://github.com/msp1974/HAIntegrationExamples/blob/0b8940bac5f73da5395d44bd767297bc5611a76e/msp_push_data_example/coordinator.py
