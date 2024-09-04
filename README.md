@@ -9,6 +9,7 @@ Greatly inspired by https://github.com/Petro31/ha-integration-multizone-controll
 * https://aarongodfrey.dev/home%20automation/use-coordinatorentity-with-the-dataupdatecoordinator/
 * https://github.com/custom-components/sensor.nintendo_wishlist
 * https://github.com/msp1974/HAIntegrationExamples/blob/0b8940bac5f73da5395d44bd767297bc5611a76e/msp_push_data_example/coordinator.py
+* https://github.com/home-assistant/architecture/discussions/1073
 
 ## Bart API
 
